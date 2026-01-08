@@ -93,7 +93,7 @@ pipeline {
                 }
             }
             environment {
-                CI_ENVIRONMENT_URL='https://steady-pavlova-ffcfe7.netlify.app/'
+                CI_ENVIRONMENT_URL='https://steady-pavlova-ffcfe7.netlify.app'
             }
             steps {
                 sh '''
