@@ -77,36 +77,42 @@ pipeline {
                     reuseNode true
                 }
             }
-            environment {
-                CI_ENVIRONMENT_URL = 'To be set'
-            }
             steps {
-                sh '''
-                    npm install netlify-cli@latest
-                    node_modules/.bin/netlify --version
-                    echo "Deploy to staging Site Id: $NETLIFY_SITE_ID"
-                    node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
-                '''
-                
-                env.CI_ENVIRONMENT_URL = sh(
-                    script: "node -e \"console.log(require('./deploy-output.json').deploy_url)\"",
-                    returnStdout: true
-                ).trim()
+                script {
+                    sh '''
+                        npm install netlify-cli@latest
+                        node_modules/.bin/netlify --version
+                        echo "Deploy to staging Site Id: $NETLIFY_SITE_ID"
+                        node_modules/.bin/netlify status
+                        node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
+                    '''
 
-                echo "CI_ENVIRONMENT_URL = ${env.CI_ENVIRONMENT_URL}"
+                    env.CI_ENVIRONMENT_URL = sh(
+                        script: "node -e \"console.log(require('./deploy-output.json').deploy_url)\"",
+                        returnStdout: true
+                    ).trim()
 
-                sh '''
-                    npx playwright test --reporter=html
-                '''
+                    echo "CI_ENVIRONMENT_URL = ${env.CI_ENVIRONMENT_URL}"
+
+                    sh '''
+                        npx playwright test --reporter=html
+                    '''
+                }
             }
             post {
                 always {
                     junit 'jest-results/junit.xml'
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright E2E Report', reportTitles: '', useWrapperFileDirectly: true])
+                    publishHTML([
+                        allowMissing: false,
+                        keepAll: false,
+                        reportDir: 'playwright-report',
+                        reportFiles: 'index.html',
+                        reportName: 'Playwright E2E Report'
+                    ])
                 }
             }
         }
+
         stage('Approval') {
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
