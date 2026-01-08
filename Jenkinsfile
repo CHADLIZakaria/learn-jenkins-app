@@ -103,12 +103,15 @@ pipeline {
                 always {
                     junit 'jest-results/junit.xml'
                     publishHTML([
-                        allowMissing: false,
-                        alwaysLinkToLastBuild: false,
-                        keepAll: false,
-                        reportDir: 'playwright-report',
-                        reportFiles: 'index.html',
-                        reportName: 'Playwright E2E Report'
+                        allowMissing: false, 
+                        alwaysLinkToLastBuild: false, 
+                        icon: '', 
+                        keepAll: false, 
+                        reportDir: 'playwright-report', 
+                        reportFiles: 'index.html', 
+                        reportName: 'Playwright Staging Report', 
+                        reportTitles: '', 
+                        useWrapperFileDirectly: true
                     ])
                 }
             }
@@ -124,23 +127,6 @@ pipeline {
         stage('Deploy prod') {
             agent {
                 docker {
-                    image 'node:18-alpine'
-                    reuseNode true
-                }
-            }
-            steps {
-                sh '''
-                    npm install netlify-cli@latest
-                    node_modules/.bin/netlify --version
-                    echo "Deploy to production Site Id: $NETLIFY_SITE_ID"
-                    node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --prod
-                '''
-            }
-        }
-        stage('Prod E2E') {
-            agent {
-                docker {
                     image 'mcr.microsoft.com/playwright:v1.57.0-noble'
                     reuseNode true
                 }
@@ -150,13 +136,28 @@ pipeline {
             }
             steps {
                 sh '''
+                    npm install netlify-cli@latest
+                    node_modules/.bin/netlify --version
+                    echo "Deploy to production Site Id: $NETLIFY_SITE_ID"
+                    node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build --prod
                     npx playwright test --reporter=html
                 '''
             }
             post {
                 always {
                     junit 'jest-results/junit.xml'
-                    publishHTML([allowMissing: false, alwaysLinkToLastBuild: false, icon: '', keepAll: false, reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright E2E Report', reportTitles: '', useWrapperFileDirectly: true])
+                    publishHTML([
+                        allowMissing: false, 
+                        alwaysLinkToLastBuild: false, 
+                        icon: '', 
+                        keepAll: false, 
+                        reportDir: 'playwright-report', 
+                        reportFiles: 'index.html', 
+                        reportName: 'Playwright Prod Report', 
+                        reportTitles: '', 
+                        useWrapperFileDirectly: true
+                    ])
                 }
             }
         }
