@@ -80,8 +80,14 @@ pipeline {
                     node_modules/.bin/netlify --version
                     echo "Deploy to production Site Id: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build
+                    node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
                 '''
+                script {
+                    env.STAGING_URL = sh(
+                        script: "node_modules/.bin/node-jq -r 'deploy-url' deploy-output.json", 
+                        returnStdout: true
+                    )
+                }
             }
         }
         stage('Approval') {
