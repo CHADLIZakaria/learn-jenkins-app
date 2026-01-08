@@ -84,11 +84,17 @@ pipeline {
                 sh '''
                     npm install netlify-cli@latest node-jq
                     node_modules/.bin/netlify --version
-                    echo "Deploy to production Site Id: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
-                    node_modules/.bin/netlify deploy --dir=build --json
                     node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
-                    CI_ENVIRONMENT_URL = $(node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json)
+                '''
+                script {
+                    env.CI_ENVIRONMENT_URL = sh(
+                        script: "node_modules/.bin/node-jq -r '.deploy_url' deploy-output.json",
+                        returnStdout: true
+                    ).trim()
+                }
+                sh '''
+                    echo "Staging URL: $CI_ENVIRONMENT_URL"
                     npx playwright test --reporter=html
                 '''
             }
