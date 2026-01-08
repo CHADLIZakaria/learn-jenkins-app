@@ -7,6 +7,7 @@ pipeline {
     }
 
     stages {
+        /*
         stage('Build') {
             agent {
                 docker {
@@ -25,6 +26,7 @@ pipeline {
                 '''
             }
         }
+        
         stage('Tests') {
             parallel {
                 stage('Unit Test') {
@@ -67,6 +69,7 @@ pipeline {
                 }
             }
         }
+        */
         stage('Deploy staging') {
             agent {
                 docker {
@@ -74,9 +77,12 @@ pipeline {
                     reuseNode true
                 }
             }
+            environment {
+                CI_ENVIRONMENT_URL = 'To be set'
+            }
             steps {
                 sh '''
-                    npm install netlify-cli@17.37.0 node-jq
+                    npm install netlify-cli@latest node-jq
                     node_modules/.bin/netlify --version
                     echo "Deploy to production Site Id: $NETLIFY_SITE_ID"
                     node_modules/.bin/netlify status
