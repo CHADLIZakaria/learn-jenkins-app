@@ -4,7 +4,7 @@ pipeline {
     environment {
         NETLIFY_SITE_ID = 'f44a8090-b912-43b7-8281-b49e58403c6e'
         NETLIFY_AUTH_TOKEN = credentials('netlify_token')
-        REACT_APP_VERSION= '1.2.3'
+        REACT_APP_VERSION = "1.2.$BUILD_ID"
     }
 
     stages {
@@ -27,7 +27,7 @@ pipeline {
                 '''
             }
         }
-        /*
+        
         stage('Tests') {
             parallel {
                 stage('Unit Test') {
@@ -70,7 +70,7 @@ pipeline {
                 }
             }
         }
-        */
+        
         stage('Deploy staging') {
             agent {
                 docker {
