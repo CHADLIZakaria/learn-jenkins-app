@@ -88,6 +88,7 @@ pipeline {
                     node_modules/.bin/netlify status
                     node_modules/.bin/netlify deploy --dir=build --json > deploy-output.json
                 '''
+                
                 env.CI_ENVIRONMENT_URL = sh(
                     script: "node -e \"console.log(require('./deploy-output.json').deploy_url)\"",
                     returnStdout: true
