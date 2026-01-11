@@ -1,5 +1,5 @@
 {
-  "requiresCompatibilities": ["FORGAT"],
+  "requiresCompatibilities": ["FARGATE"],
   "family": "LeanJenkinsApp-TaskDefinition-Prod",
   "executionRoleArn": "",
   "networkMode": "none",
