@@ -1,26 +1,22 @@
 {
-  "requiresCompatibilities": ["FARGATE"],
   "family": "LeanJenkinsApp-TaskDefinition-Prod",
-  "executionRoleArn": "",
-  "networkMode": "none",
+  "requiresCompatibilities": ["FARGATE"],
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::YOUR_ACCOUNT_ID:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
       "name": "learnjenkins",
       "image": "nginx:1.26-alpine",
-      
+      "essential": true,
       "portMappings": [
         {
-          "name": "nginx-80",
           "containerPort": 80,
-          "hostPort": 80,
           "protocol": "tcp",
-           "appProtocol": "http"
+          "appProtocol": "http"
         }
-      ],
-      "essential": true
+      ]
     }
-  ],
-  "volumes": [],  
-  "cpu": "256",
-  "memory": "512"
+  ]
 }
