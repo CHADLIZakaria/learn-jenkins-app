@@ -5,9 +5,29 @@ pipeline {
         NETLIFY_SITE_ID = 'f44a8090-b912-43b7-8281-b49e58403c6e'
         NETLIFY_AUTH_TOKEN = credentials('netlify_token')
         REACT_APP_VERSION = "1.2.$BUILD_ID"
+        AWS_DEFAULT_REGION='us-east-1'
     }
 
     stages {
+
+        stage('Deploy to AWS') {
+            agent {
+                docker {
+                    image 'amazon/aws-cli'
+                    args "--entrypoint=''"
+                    reuseNode true
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'aws-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
+                    sh '''
+                        aws --version
+                        aws ecs register-task-definition --cli-input-json file://aws/task-definition-prod.json
+                    '''
+                }
+            }
+        }
+
         stage('Build') {
             agent {
                 docker {
@@ -27,28 +47,9 @@ pipeline {
             }
         }
 
-         stage('AWS') {
-            agent {
-                docker {
-                    image 'amazon/aws-cli'
-                    args "--entrypoint=''"
-                    reuseNode true
-                }
-            }
-            environment {
-                AWS_S3_BUCKET = 'learn-jenkins-20260111'
-            }
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'aws-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
-                    sh '''
-                        aws --version
-                        aws s3 ls
-                        echo "Hello S3" > index.html
-                        aws s3 sync build s3://$AWS_S3_BUCKET/
-                    '''
-                }
-            }
-        }
+       
+
+        /*
         
         stage('Tests') {
             parallel {
@@ -174,5 +175,6 @@ pipeline {
                 }
             }
         }
+        */
     }
 }
