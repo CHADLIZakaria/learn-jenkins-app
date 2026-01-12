@@ -47,12 +47,55 @@ pipeline {
                 }
             }
             steps {
+                sh '''
+                    docker version
+                    docker build -t $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION .
+                '''
+            }
+        }
+
+        stage('Push image to ECR') {
+            agent {
+                docker {
+                    image 'amazon/aws-cli'
+                    args "--entrypoint=''"
+                    reuseNode true
+                }
+            }
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'aws-credentials',
+                    usernameVariable: 'AWS_ACCESS_KEY_ID',
+                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                )]) {
+                    sh '''
+                        aws --version
+                        aws ecr get-login-password | docker login --username AWS --password-stdin $AWS_DOCKER_REGISTRY
+                        docker push $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION
+                    '''
+                }
+            }
+        }
+
+        stage('Build Docker image') {
+            agent {
+                docker {
+                    image 'docker:26'
+                    args '''
+                        -u root
+                        --entrypoint=''
+                        -v /var/run/docker.sock:/var/run/docker.sock
+                    '''
+                    reuseNode true
+                }
+            }
+            steps {
                 withCredentials([usernamePassword(credentialsId: 'aws-credentials', passwordVariable: 'AWS_SECRET_ACCESS_KEY', usernameVariable: 'AWS_ACCESS_KEY_ID')]) {
                     sh '''
                         docker version
                         docker build -t $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION .
                         aws ecr get-login-password | docker login --username AWS --password-stdin $AWS_DOCKER_REGISTRY
-                        docket push $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION
+                        docker push $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION
                     '''
                 }
             }
