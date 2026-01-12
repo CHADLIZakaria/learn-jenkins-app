@@ -8,7 +8,7 @@
   "containerDefinitions": [
     {
       "name": "learnjenkins",
-      "image": "794338741372.dkr.ecr.us-east-1.amazonaws.com/myjenkins-app:1.2.188",
+      "image": "794338741372.dkr.ecr.us-east-1.amazonaws.com/myjenkins-app:#APP_VERSION#",
       "essential": true,
       "portMappings": [
         {
