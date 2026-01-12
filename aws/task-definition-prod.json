@@ -4,11 +4,11 @@
   "networkMode": "awsvpc",
   "cpu": "256",
   "memory": "512",
-  "executionRoleArn": "",
+  "executionRoleArn": "arn:aws:iam::794338741372:role/ecsTaskExecutionRole",  
   "containerDefinitions": [
     {
       "name": "learnjenkins",
-      "image": "nginx:1.27-alpine",
+      "image": "794338741372.dkr.ecr.us-east-1.amazonaws.com/myjenkins-app:1.2.188",
       "essential": true,
       "portMappings": [
         {
