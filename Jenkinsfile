@@ -9,6 +9,7 @@ pipeline {
         AWS_ECS_CLUSTER='LearnJenkinsApp-Cluster'
         AWS_ECS_SERVICE='LearnJenkinsApp-TaskDefinition-Prod-service-wbcy10cq'
         AWS_ECS_TASK_DEFINITION='LeanJenkinsApp-TaskDefinition-Prod'
+        APP_NAME = 'myjenkins-app'
     }
 
     stages {
@@ -31,21 +32,23 @@ pipeline {
                 '''
             }
         }
+        
         stage('Build Docker image') {
             agent {
                 docker {
-                    image 'my-aws-cli'
-                    reuseNode true
+                    image 'docker:26'
                     args '''
                         -u root
                         --entrypoint=''
                         -v /var/run/docker.sock:/var/run/docker.sock
                     '''
+                    reuseNode true
                 }
             }
             steps {
                 sh '''
-                    docker build -t myjenkins-app .
+                    docker version
+                    docker build -t $APP_NAME:$REACT_APP_VERSION .
                 '''
             }
         }
