@@ -36,7 +36,11 @@ pipeline {
                 docker {
                     image 'my-aws-cli'
                     reuseNode true
-                    args "-u root -v /var/run/docker.sock:/var/run/docker.sock"
+                    args '''
+                        -u root
+                        --entrypoint=''
+                        -v /var/run/docker.sock:/var/run/docker.sock
+                    '''
                 }
             }
             steps {
