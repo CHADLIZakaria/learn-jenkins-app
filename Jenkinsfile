@@ -57,8 +57,12 @@ pipeline {
         stage('Push image to ECR') {
             agent {
                 docker {
-                    image 'amazon/aws-cli'
-                    args "--entrypoint=''"
+                    image 'docker:26'
+                    args '''
+                        -u root
+                        --entrypoint=''
+                        -v /var/run/docker.sock:/var/run/docker.sock
+                    '''
                     reuseNode true
                 }
             }
@@ -69,13 +73,18 @@ pipeline {
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                 )]) {
                     sh '''
+                        apk add --no-cache aws-cli
                         aws --version
-                        aws ecr get-login-password | docker login --username AWS --password-stdin $AWS_DOCKER_REGISTRY
+
+                        aws ecr get-login-password \
+                        | docker login --username AWS --password-stdin $AWS_DOCKER_REGISTRY
+
                         docker push $AWS_DOCKER_REGISTRY/$APP_NAME:$REACT_APP_VERSION
                     '''
                 }
             }
         }
+
 
         stage('Deploy to AWS') {
             agent {
