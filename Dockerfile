@@ -1,2 +1,3 @@
-FROM mcr.microsoft.com/playwright:v1.57.0-noble
-RUN npm install -g netlify-cli@latest serve
+FROM nginx:1.27-alpine
+COPY build /usr/share/nginx/html
+
